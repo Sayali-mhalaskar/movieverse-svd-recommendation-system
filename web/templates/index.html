@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>MovieVerse - Movie Recommendation System</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            background:
+                radial-gradient(circle at top left, #24104f, transparent 35%),
+                radial-gradient(circle at top right, #10284f, transparent 35%),
+                #080b16;
+            color: #ffffff;
+            min-height: 100vh;
+        }
+
+        /* ================= NAVBAR ================= */
+
+        .navbar {
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 7%;
+            background: rgba(8, 11, 22, 0.85);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            backdrop-filter: blur(12px);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .logo span {
+            margin-right: 8px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            color: #c7c9d9;
+            text-decoration: none;
+            font-size: 15px;
+            transition: 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: white;
+        }
+
+        /* ================= HERO ================= */
+
+        .hero {
+            text-align: center;
+            padding: 70px 20px 45px;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 30px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #b9a7ff;
+            font-size: 13px;
+            margin-bottom: 22px;
+        }
+
+        .hero h1 {
+            font-size: clamp(38px, 6vw, 68px);
+            line-height: 1.05;
+            margin-bottom: 18px;
+            background: linear-gradient(
+                90deg,
+                #ffffff,
+                #b99cff,
+                #79c8ff
+            );
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            color: #aeb3c7;
+            font-size: 17px;
+            max-width: 650px;
+            margin: auto;
+        }
+
+        /* ================= SEARCH BOX ================= */
+
+        .control-card {
+            width: min(850px, 92%);
+            margin: 0 auto 40px;
+            padding: 30px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 22px;
+            box-shadow: 0 25px 70px rgba(0,0,0,0.3);
+            backdrop-filter: blur(18px);
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 9px;
+            color: #c7c9d9;
+            font-size: 14px;
+        }
+
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 12px;
+            background: rgba(0,0,0,0.3);
+            color: white;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus {
+            border-color: #8c6cff;
+        }
+
+        .input-group select option {
+            background: #111522;
+            color: white;
+        }
+
+        .recommend-btn {
+            width: 100%;
+            margin-top: 24px;
+            padding: 16px;
+            border: none;
+            border-radius: 13px;
+            cursor: pointer;
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            background: linear-gradient(
+                90deg,
+                #7047eb,
+                #4e8cff
+            );
+            box-shadow: 0 10px 30px rgba(91,72,220,0.35);
+            transition: 0.3s;
+        }
+
+        .recommend-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(91,72,220,0.5);
+        }
+
+        .recommend-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* ================= STATS ================= */
+
+        .section {
+            width: min(1100px, 92%);
+            margin: 0 auto 45px;
+        }
+
+        .section-title {
+            font-size: 22px;
+            margin-bottom: 18px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+        }
+
+        .stat-card {
+            padding: 23px;
+            border-radius: 17px;
+            background: rgba(255,255,255,0.055);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .stat-icon {
+            font-size: 26px;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 800;
+        }
+
+        .stat-label {
+            color: #9da2b5;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+        /* ================= RECOMMENDATIONS ================= */
+
+        .recommendation-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .movie-card {
+            background: rgba(255,255,255,0.055);
+            border: 1px solid rgba(255,255,255,0.09);
+            border-radius: 18px;
+            overflow: hidden;
+            transition: 0.3s;
+        }
+
+        .movie-card:hover {
+            transform: translateY(-7px);
+            border-color: rgba(145,118,255,0.5);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .movie-poster {
+            height: 170px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(112,71,235,0.8),
+                    rgba(35,101,190,0.8)
+                );
+            font-size: 58px;
+        }
+
+        .movie-info {
+            padding: 20px;
+        }
+
+        .movie-rank {
+            color: #9e86ff;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .movie-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 9px;
+        }
+
+        .movie-genre {
+            color: #949aad;
+            font-size: 13px;
+            min-height: 20px;
+            margin-bottom: 14px;
+        }
+
+        .movie-rating {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 7px 11px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.07);
+            color: #ffd76a;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        /* ================= LOADING ================= */
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 35px;
+            color: #aaaec0;
+        }
+
+        .spinner {
+            width: 35px;
+            height: 35px;
+            border: 3px solid rgba(255,255,255,0.15);
+            border-top-color: #8c6cff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 12px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ================= EMPTY ================= */
+
+        .empty {
+            text-align: center;
+            padding: 55px 20px;
+            border-radius: 18px;
+            border: 1px dashed rgba(255,255,255,0.12);
+            color: #858a9e;
+        }
+
+        .empty-icon {
+            font-size: 45px;
+            margin-bottom: 12px;
+        }
+
+        /* ================= ERROR ================= */
+
+        .error {
+            display: none;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 10px;
+            background: rgba(255,70,70,0.1);
+            border: 1px solid rgba(255,70,70,0.25);
+            color: #ff9a9a;
+        }
+
+        /* ================= FOOTER ================= */
+
+        footer {
+            text-align: center;
+            padding: 35px;
+            color: #656a7c;
+            font-size: 13px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            margin-top: 50px;
+        }
+
+        /* ================= RESPONSIVE ================= */
+
+        @media (max-width: 800px) {
+
+            .input-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .recommendation-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .nav-links {
+                gap: 15px;
+            }
+
+        }
+
+        @media (max-width: 550px) {
+
+            .navbar {
+                padding: 0 5%;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .recommendation-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero {
+                padding-top: 45px;
+            }
+
+            .control-card {
+                padding: 20px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+    <!-- ================= NAVBAR ================= -->
+
+    <nav class="navbar">
+
+        <div class="logo">
+            🎬 MOVIEVERSE
+        </div>
+
+        <div class="nav-links">
+            <a href="#home">HOME</a>
+            <a href="#recommendations">RECOMMENDATIONS</a>
+            <a href="#about">ABOUT</a>
+        </div>
+
+    </nav>
+
+
+    <!-- ================= HERO ================= -->
+
+    <section class="hero" id="home">
+
+        <div class="hero-badge">
+            ✨ AI-Powered Movie Recommendations
+        </div>
+
+        <h1>
+            Discover Movies<br>
+            You'll Love
+        </h1>
+
+        <p>
+            Get personalized movie recommendations using
+            Collaborative Filtering and SVD-based
+            matrix factorization.
+        </p>
+
+    </section>
+
+
+    <!-- ================= USER INPUT ================= -->
+
+    <div class="control-card">
+
+        <div class="input-grid">
+
+            <div class="input-group">
+
+                <label for="userId">
+                    👤 User ID
+                </label>
+
+                <input
+                    type="number"
+                    id="userId"
+                    value="1"
+                    min="1"
+                    placeholder="Enter User ID"
+                    required
+                >
+
+            </div>
+
+
+            <div class="input-group">
+
+                <label for="numberMovies">
+                    🎬 Number of Recommendations
+                </label>
+
+                <select id="numberMovies">
+
+                    <option value="5">5 Movies</option>
+
+                    <option value="10" selected>
+                        10 Movies
+                    </option>
+
+                    <option value="15">
+                        15 Movies
+                    </option>
+
+                    <option value="20">
+                        20 Movies
+                    </option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+
+        <button
+            class="recommend-btn"
+            id="recommendButton"
+            onclick="getRecommendations()">
+
+            ✨ Recommend Movies
+
+        </button>
+
+
+        <div class="error" id="errorBox"></div>
+
+    </div>
+
+
+    <!-- ================= USER ACTIVITY ================= -->
+
+    <section class="section">
+
+        <h2 class="section-title">
+            Your Activity
+        </h2>
+
+        <div class="stats">
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    🎞️
+                </div>
+
+                <div
+                    class="stat-value"
+                    id="moviesRated">
+
+                    0
+
+                </div>
+
+                <div class="stat-label">
+                    Movies Rated
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    ⭐
+                </div>
+
+                <div
+                    class="stat-value"
+                    id="averageRating">
+
+                    0.0
+
+                </div>
+
+                <div class="stat-label">
+                    Average Rating
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    🎯
+                </div>
+
+                <div
+                    class="stat-value"
+                    id="recommendationCount">
+
+                    0
+
+                </div>
+
+                <div class="stat-label">
+                    Recommendations
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ================= RECOMMENDATIONS ================= -->
+
+    <section
+        class="section"
+        id="recommendations">
+
+        <h2 class="section-title">
+            ✨ Recommended For You
+        </h2>
+
+
+        <div
+            class="loading"
+            id="loading">
+
+            <div class="spinner"></div>
+
+            Finding movies you may like...
+
+        </div>
+
+
+        <div
+            class="empty"
+            id="emptyState">
+
+            <div class="empty-icon">
+                🎬
+            </div>
+
+            <p>
+                Enter a User ID and click
+                "Recommend Movies" to get started.
+            </p>
+
+        </div>
+
+
+        <div
+            class="recommendation-grid"
+            id="movieGrid">
+
+        </div>
+
+    </section>
+
+
+    <!-- ================= ABOUT ================= -->
+
+    <section
+        class="section"
+        id="about">
+
+        <h2 class="section-title">
+            About MovieVerse
+        </h2>
+
+        <div class="control-card">
+
+            <p style="color:#aeb3c7; line-height:1.8;">
+
+                MovieVerse is a personalized movie
+                recommendation system built using
+                <strong>Collaborative Filtering</strong>
+                and
+                <strong>Singular Value Decomposition (SVD)</strong>.
+
+                The system learns user preferences from
+                historical movie ratings and predicts
+                ratings for movies that the user has not
+                previously rated.
+
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- ================= FOOTER ================= -->
+
+    <footer>
+
+        🎬 MovieVerse |
+        SVD-Based Movie Recommendation System
+
+    </footer>
+
+
+    <!-- ================= JAVASCRIPT ================= -->
+
+    <script>
+
+        async function getRecommendations() {
+
+            const userId =
+                document.getElementById("userId").value;
+
+            const n =
+                document.getElementById("numberMovies").value;
+
+            const button =
+                document.getElementById("recommendButton");
+
+            const loading =
+                document.getElementById("loading");
+
+            const emptyState =
+                document.getElementById("emptyState");
+
+            const movieGrid =
+                document.getElementById("movieGrid");
+
+            const errorBox =
+                document.getElementById("errorBox");
+
+
+            // Validate User ID
+
+            if (!userId) {
+
+                showError(
+                    "Please enter a valid User ID."
+                );
+
+                return;
+            }
+
+
+            // Reset UI
+
+            errorBox.style.display = "none";
+
+            emptyState.style.display = "none";
+
+            movieGrid.innerHTML = "";
+
+            loading.style.display = "block";
+
+            button.disabled = true;
+
+            button.innerText =
+                "⏳ Finding Movies...";
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        `/api/recommend?userId=${userId}&n=${n}`
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                if (!response.ok || !data.success) {
+
+                    throw new Error(
+                        data.error ||
+                        "Unable to generate recommendations."
+                    );
+
+                }
+
+
+                // Update statistics
+
+                document.getElementById(
+                    "moviesRated"
+                ).innerText =
+                    data.moviesRated;
+
+
+                document.getElementById(
+                    "averageRating"
+                ).innerText =
+                    data.averageRating;
+
+
+                document.getElementById(
+                    "recommendationCount"
+                ).innerText =
+                    data.recommendationCount;
+
+
+                // Check results
+
+                if (
+                    !data.recommendations ||
+                    data.recommendations.length === 0
+                ) {
+
+                    emptyState.style.display = "block";
+
+                    emptyState.innerHTML = `
+                        <div class="empty-icon">😕</div>
+                        <p>
+                            No recommendations found
+                            for User ID ${userId}.
+                        </p>
+                    `;
+
+                    return;
+                }
+
+
+                // Create movie cards
+
+                data.recommendations.forEach(
+                    (movie, index) => {
+
+                        const card =
+                            document.createElement("div");
+
+                        card.className =
+                            "movie-card";
+
+
+                        card.innerHTML = `
+
+                            <div class="movie-poster">
+                                🎬
+                            </div>
+
+                            <div class="movie-info">
+
+                                <div class="movie-rank">
+                                    #${index + 1}
+                                    RECOMMENDATION
+                                </div>
+
+                                <div class="movie-title">
+                                    ${escapeHtml(
+                                        movie.movieTitle
+                                    )}
+                                </div>
+
+                                <div class="movie-genre">
+                                    ${escapeHtml(
+                                        movie.genres
+                                    )}
+                                </div>
+
+                                <div class="movie-rating">
+                                    ⭐
+                                    ${Number(
+                                        movie.score
+                                    ).toFixed(2)}
+                                    / 5
+                                </div>
+
+                            </div>
+                        `;
+
+
+                        movieGrid.appendChild(card);
+
+                    }
+                );
+
+
+            } catch (error) {
+
+                showError(
+                    error.message
+                );
+
+                emptyState.style.display =
+                    "block";
+
+            } finally {
+
+                loading.style.display =
+                    "none";
+
+                button.disabled =
+                    false;
+
+                button.innerText =
+                    "✨ Recommend Movies";
+
+            }
+
+        }
+
+
+        function showError(message) {
+
+            const errorBox =
+                document.getElementById(
+                    "errorBox"
+                );
+
+            errorBox.innerText =
+                "⚠️ " + message;
+
+            errorBox.style.display =
+                "block";
+
+        }
+
+
+        function escapeHtml(text) {
+
+            const div =
+                document.createElement("div");
+
+            div.textContent =
+                text ?? "";
+
+            return div.innerHTML;
+
+        }
+
+    </script>
+
+</body>
+
+</html>
