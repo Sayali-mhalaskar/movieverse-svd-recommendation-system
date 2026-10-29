@@ -76,15 +76,4 @@ curl http://127.0.0.1:5000/api/recommend?userId=1
 ## 📚 Dataset Source
 
 MovieLens 100K  
-[https://grouplens.org/datasets/movielens/100k](https://grouplens.org/datasets/movielens/100k)
-
-## 📝 License
-
-MIT License
-
-Made with ❤️ by [Darshan Jitendra Chobarkar](https://darshanwebdev.com)
-
-## 💡 Author
-
-Built by [Darshan Chobarkar](https://github.com/dchobarkar)  
-Inspired by [this blog post](https://dchobarkar.github.io/2024/09/21/hands-on-build-a-movie-recommender-in-python.html)
+[https://grouplens.org/datasets/movielens/100k](https://grouplens.org/datasets/movielens/100k)]
